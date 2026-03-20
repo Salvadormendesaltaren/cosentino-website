@@ -763,6 +763,26 @@
     .mobile-menu-close::before { transform: rotate(45deg); }
     .mobile-menu-close::after { transform: rotate(-45deg); }
 
+    .mobile-submenu {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      padding-left: 16px;
+    }
+    .mobile-submenu.open {
+      display: flex;
+    }
+    .mobile-submenu a {
+      font-size: 22px !important;
+      color: #fff !important;
+      pointer-events: all !important;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+    }
+    .mobile-submenu a:hover {
+      opacity: 1;
+    }
+
     /* ---- MOBILE ---- */
     @media (max-width: 768px) {
       header {
@@ -910,13 +930,17 @@
       }
 
       .intro-text {
-        flex-direction: column;
         text-align: center;
-        gap: 2px;
+        gap: 0;
       }
 
       .intro-text-line {
-        font-size: 12px;
+        font-size: 11px;
+        white-space: nowrap;
+      }
+
+      .page-intro-text .intro-text-line {
+        font-size: 11px;
         white-space: nowrap;
       }
 
@@ -1509,17 +1533,38 @@
         const a = document.createElement('a');
         a.href = link.href;
         a.textContent = link.textContent;
-        // Only "Colores" is active
         if (link.textContent === 'Colores') {
           a.classList.add('active-link');
+          const submenu = document.createElement('div');
+          submenu.className = 'mobile-submenu';
+          const gamasLink = document.createElement('a');
+          gamasLink.href = 'index.html';
+          gamasLink.textContent = 'Gamas';
+          const catLink = document.createElement('a');
+          catLink.href = 'catalogo.html';
+          catLink.textContent = 'Catálogo';
+          submenu.appendChild(gamasLink);
+          submenu.appendChild(catLink);
+
           a.addEventListener('click', e => {
             e.preventDefault();
-            document.body.style.transition = 'opacity 0.4s ease';
-            document.body.style.opacity = '0';
-            setTimeout(() => window.location.href = link.href, 400);
+            submenu.classList.toggle('open');
           });
+
+          [gamasLink, catLink].forEach(sl => {
+            sl.addEventListener('click', e => {
+              e.preventDefault();
+              document.body.style.transition = 'opacity 0.4s ease';
+              document.body.style.opacity = '0';
+              setTimeout(() => window.location.href = sl.href, 400);
+            });
+          });
+
+          mobileMenuOverlay.appendChild(a);
+          mobileMenuOverlay.appendChild(submenu);
+        } else {
+          mobileMenuOverlay.appendChild(a);
         }
-        mobileMenuOverlay.appendChild(a);
       });
 
       document.body.appendChild(mobileMenuOverlay);
