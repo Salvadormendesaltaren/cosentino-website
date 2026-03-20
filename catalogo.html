@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cosentino - Catálogo</title>
+  <style>
+    @font-face {
+      font-family: 'Diagramm';
+      src: url('fonts/Diagramm-Regular.otf') format('opentype');
+      font-weight: 400;
+      font-style: normal;
+    }
+
+    @font-face {
+      font-family: 'Diagramm';
+      src: url('fonts/Diagramm-Medium.otf') format('opentype');
+      font-weight: 500;
+      font-style: normal;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Diagramm', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      background: #ffffff;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    body.loaded {
+      opacity: 1;
+    }
+
+    body.leaving {
+      opacity: 0;
+    }
+
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      padding: 26px 24px 0 24px;
+      z-index: 10;
+    }
+
+    header .header-logo {
+      width: 134px;
+      height: 14px;
+      flex-shrink: 0;
+    }
+
+    header .header-logo img {
+      width: 100%;
+      height: 100%;
+      filter: invert(1);
+    }
+
+    header .header-nav {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    header .header-nav a {
+      font-family: 'Diagramm', sans-serif;
+      font-size: 14px;
+      line-height: 1;
+      color: #000000;
+      text-decoration: none;
+      opacity: 0.6;
+      transition: opacity 0.2s;
+    }
+
+    header .header-nav a:hover {
+      opacity: 1;
+    }
+
+    header .header-right a {
+      font-family: 'Diagramm', sans-serif;
+      font-size: 14px;
+      line-height: 1;
+      color: #000000;
+      text-decoration: none;
+      opacity: 0.6;
+      transition: opacity 0.2s;
+    }
+
+    header .header-right a:hover {
+      opacity: 1;
+    }
+
+    .page-title {
+      padding-top: 80px;
+      padding-left: 24px;
+      font-family: 'Diagramm', sans-serif;
+      font-weight: 400;
+      font-size: 64px;
+      letter-spacing: -0.09em;
+      color: #000000;
+    }
+
+    .catalog-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 24px;
+      margin: 24px 24px 0 24px;
+    }
+
+    .catalog-actions a {
+      font-family: 'Diagramm', sans-serif;
+      font-size: 14px;
+      font-weight: 400;
+      letter-spacing: -0.7px;
+      color: #000000;
+      text-decoration: none;
+      opacity: 0.6;
+      transition: opacity 0.2s;
+    }
+
+    .catalog-actions a:hover {
+      opacity: 1;
+    }
+
+    .cards-grid {
+      margin-top: 24px;
+      margin-left: 24px;
+      margin-right: 24px;
+      padding-bottom: 100px;
+      display: grid;
+      grid-template-columns: repeat(4, 201px);
+      justify-content: space-between;
+      row-gap: 32px;
+    }
+
+    .card {
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+      width: 201px;
+    }
+
+    .card-thumb {
+      width: 100%;
+      overflow: hidden;
+    }
+
+    .card-thumb {
+      position: relative;
+    }
+
+    .card-thumb img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .card-thumb .mat-img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .cards-grid.hover-active .card-thumb .mat-img {
+      opacity: 1;
+    }
+
+    .card-info {
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 0px;
+    }
+
+    .card-number {
+      font-family: 'Diagramm', sans-serif;
+      font-weight: 400;
+      font-size: 12px;
+      letter-spacing: -0.36px;
+      color: #000000;
+      line-height: 1.3;
+    }
+
+    .card-title {
+      font-family: 'Diagramm', sans-serif;
+      font-weight: 400;
+      font-size: 14px;
+      letter-spacing: -0.42px;
+      color: #000000;
+      line-height: 1.3;
+    }
+
+    .card-subtitle {
+      font-family: 'Diagramm', sans-serif;
+      font-weight: 400;
+      font-size: 14px;
+      letter-spacing: -0.42px;
+      color: #D7D7D7;
+      line-height: 1.3;
+    }
+
+    .card {
+      opacity: 0.85;
+      transition: opacity 0.2s;
+    }
+
+    .card:hover {
+      opacity: 1;
+    }
+
+    .bottom-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      padding: 0 24px 30px 24px;
+      z-index: 10;
+    }
+
+    .bottom-bar-left {
+      position: absolute;
+      left: 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .bottom-bar-left a {
+      font-family: 'Diagramm', sans-serif;
+      font-weight: 500;
+      font-size: 14px;
+      color: #000000;
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: -0.02em;
+      white-space: nowrap;
+      opacity: 0.6;
+      transition: opacity 0.2s;
+    }
+
+    .bottom-bar-left a.active {
+      opacity: 1;
+    }
+
+    .bottom-bar-left:hover a {
+      opacity: 0.6;
+    }
+
+    .bottom-bar-left:hover a:hover {
+      opacity: 1;
+    }
+
+    .bottom-bar-center {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+
+    .bottom-bar-maca {
+      opacity: 0.6;
+      transition: opacity 0.2s;
+    }
+
+    .bottom-bar-maca:hover {
+      opacity: 1;
+    }
+
+    .bottom-bar a,
+    .bottom-bar span {
+      font-family: 'Diagramm', sans-serif;
+      font-weight: 500;
+      font-size: 14px;
+      color: #000000;
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: -0.02em;
+      white-space: nowrap;
+    }
+
+    .bottom-bar-mid {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .bottom-bar-mid .color-toggle {
+      opacity: 0.6;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .bottom-bar-mid .color-toggle:hover {
+      opacity: 1;
+    }
+
+    .bottom-bar-mid .color-options {
+      display: none;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .bottom-bar-mid.expanded .color-toggle {
+      display: none;
+    }
+
+    .bottom-bar-mid.expanded .color-options {
+      display: flex;
+    }
+
+    .bottom-bar-mid .color-options span {
+      opacity: 0.6;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .bottom-bar-mid .color-options span:hover {
+      opacity: 1;
+    }
+
+    .color-close {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      position: relative;
+      font-size: 0;
+    }
+
+    .color-close::before,
+    .color-close::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      width: 100%;
+      height: 1px;
+      background: currentColor;
+    }
+
+    .color-close::before {
+      transform: rotate(45deg);
+    }
+
+    .color-close::after {
+      transform: rotate(-45deg);
+    }
+
+    .maca-overlay {
+      position: fixed;
+      bottom: 62px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+    }
+
+    .maca-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .maca-chat {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      max-width: 500px;
+    }
+
+    .maca-bubble {
+      background: rgba(0, 0, 0, 0.06);
+      color: #000000;
+      font-family: 'Diagramm', sans-serif;
+      font-weight: 400;
+      font-size: 14px;
+      letter-spacing: -0.02em;
+      padding: 12px 20px;
+      border-radius: 20px;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+      white-space: nowrap;
+    }
+
+    .maca-bubble.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .maca-bubble.faded {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+
+    .top-shadow {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 120px;
+      background: linear-gradient(to bottom, rgba(255,255,255,1) 20%, transparent);
+      pointer-events: none;
+      z-index: 9;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .top-shadow.visible {
+      opacity: 1;
+    }
+
+    .bottom-shadow {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 90px;
+      background: linear-gradient(to top, rgba(255,255,255,1) 20%, transparent);
+      pointer-events: none;
+      z-index: 9;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-logo">
+      <img src="logo.svg" alt="Cosentino">
+    </div>
+    <nav class="header-nav">
+      <a href="catalogo.html">Colores</a>
+      <a href="#">Marcas</a>
+      <a href="#">Espacios</a>
+      <a href="#">Inspiración</a>
+      <a href="#">Simuladores</a>
+      <a href="#">Showroom</a>
+      <a href="#">Donde Comprar</a>
+    </nav>
+    <div class="header-right">
+      <a href="#">Profesionales</a>
+    </div>
+  </header>
+
+  <h1 class="page-title">Colores</h1>
+
+  <div class="catalog-actions">
+    <a href="#">Buscar</a>
+    <a href="#">Ordenar</a>
+    <a href="#">Filtrar</a>
+  </div>
+
+  <div class="cards-grid">
+    <div class="card">
+      <div class="card-thumb">
+        <img src="thumb-01.png" alt="Romantic Ash">
+        <img class="mat-img" src="mat-01.avif" alt="Romantic Ash material">
+      </div>
+      <div class="card-info">
+        <span class="card-number">01</span>
+        <span class="card-title">Romantic Ash</span>
+        <span class="card-subtitle">Silestone - Le chic</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-thumb">
+        <img src="thumb-02.png" alt="Calacatta Tova">
+        <img class="mat-img" src="mat-02.avif" alt="Calacatta Tova material">
+      </div>
+      <div class="card-info">
+        <span class="card-number">02</span>
+        <span class="card-title">Calacatta Tova</span>
+        <span class="card-subtitle">Silestone - Le chic</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-thumb">
+        <img src="thumb-03.png" alt="Cinder Craze">
+        <img class="mat-img" src="mat-03.avif" alt="Cinder Craze material">
+      </div>
+      <div class="card-info">
+        <span class="card-number">03</span>
+        <span class="card-title">Cinder Craze</span>
+        <span class="card-subtitle">Silestone - Loft</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-thumb">
+        <img src="thumb-04.png" alt="Brass Relish">
+        <img class="mat-img" src="mat-04.avif" alt="Brass Relish material">
+      </div>
+      <div class="card-info">
+        <span class="card-number">04</span>
+        <span class="card-title">Brass Relish</span>
+        <span class="card-subtitle">Silestone - Loft</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-thumb">
+        <img src="thumb-05.png" alt="Desert Silver">
+        <img class="mat-img" src="mat-05.avif" alt="Desert Silver material">
+      </div>
+      <div class="card-info">
+        <span class="card-number">05</span>
+        <span class="card-title">Desert Silver</span>
+        <span class="card-subtitle">Dekton - Natural</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-thumb">
+        <img src="thumb-06.png" alt="Noir Supreme">
+        <img class="mat-img" src="mat-06.avif" alt="Noir Supreme material">
+      </div>
+      <div class="card-info">
+        <span class="card-number">06</span>
+        <span class="card-title">Noir Supreme</span>
+        <span class="card-subtitle">Dekton - Natural</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-thumb">
+        <img src="thumb-07.png" alt="Ember Slate">
+        <img class="mat-img" src="mat-07.avif" alt="Ember Slate material">
+      </div>
+      <div class="card-info">
+        <span class="card-number">07</span>
+        <span class="card-title">Ember Slate</span>
+        <span class="card-subtitle">Sensa - Granite</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-thumb">
+        <img src="thumb-08.png" alt="Arctic White">
+        <img class="mat-img" src="mat-08.jpg" alt="Arctic White material">
+      </div>
+      <div class="card-info">
+        <span class="card-number">08</span>
+        <span class="card-title">Arctic White</span>
+        <span class="card-subtitle">Silestone - Le chic</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-thumb">
+        <img src="thumb-05.png" alt="Desert Silver">
+        <img class="mat-img" src="mat-05.avif" alt="Desert Silver material">
+      </div>
+      <div class="card-info">
+        <span class="card-number">09</span>
+        <span class="card-title">Desert Silver</span>
+        <span class="card-subtitle">Dekton - Natural</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-thumb">
+        <img src="thumb-03.png" alt="Cinder Craze">
+        <img class="mat-img" src="mat-03.avif" alt="Cinder Craze material">
+      </div>
+      <div class="card-info">
+        <span class="card-number">10</span>
+        <span class="card-title">Cinder Craze</span>
+        <span class="card-subtitle">Silestone - Loft</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-thumb">
+        <img src="thumb-08.png" alt="Arctic White">
+        <img class="mat-img" src="mat-08.jpg" alt="Arctic White material">
+      </div>
+      <div class="card-info">
+        <span class="card-number">11</span>
+        <span class="card-title">Arctic White</span>
+        <span class="card-subtitle">Silestone - Le chic</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-thumb">
+        <img src="thumb-01.png" alt="Romantic Ash">
+        <img class="mat-img" src="mat-01.avif" alt="Romantic Ash material">
+      </div>
+      <div class="card-info">
+        <span class="card-number">12</span>
+        <span class="card-title">Romantic Ash</span>
+        <span class="card-subtitle">Silestone - Le chic</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-thumb">
+        <img src="thumb-07.png" alt="Ember Slate">
+        <img class="mat-img" src="mat-07.avif" alt="Ember Slate material">
+      </div>
+      <div class="card-info">
+        <span class="card-number">13</span>
+        <span class="card-title">Ember Slate</span>
+        <span class="card-subtitle">Sensa - Granite</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-thumb">
+        <img src="thumb-04.png" alt="Brass Relish">
+        <img class="mat-img" src="mat-04.avif" alt="Brass Relish material">
+      </div>
+      <div class="card-info">
+        <span class="card-number">14</span>
+        <span class="card-title">Brass Relish</span>
+        <span class="card-subtitle">Silestone - Loft</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-thumb">
+        <img src="thumb-02.png" alt="Calacatta Tova">
+        <img class="mat-img" src="mat-02.avif" alt="Calacatta Tova material">
+      </div>
+      <div class="card-info">
+        <span class="card-number">15</span>
+        <span class="card-title">Calacatta Tova</span>
+        <span class="card-subtitle">Silestone - Le chic</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-thumb">
+        <img src="thumb-06.png" alt="Noir Supreme">
+        <img class="mat-img" src="mat-06.avif" alt="Noir Supreme material">
+      </div>
+      <div class="card-info">
+        <span class="card-number">16</span>
+        <span class="card-title">Noir Supreme</span>
+        <span class="card-subtitle">Dekton - Natural</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="maca-overlay" id="macaOverlay">
+    <div class="maca-chat" id="macaChat"></div>
+  </div>
+
+  <div class="top-shadow" id="topShadow"></div>
+  <div class="bottom-shadow"></div>
+  <div class="bottom-bar">
+    <div class="bottom-bar-left">
+      <a href="index.html">Gamas</a>
+      <a href="catalogo.html" class="active">Catálogo</a>
+    </div>
+    <div class="bottom-bar-center">
+      <div class="bottom-bar-mid" id="colorSelector">
+        <span class="color-toggle">Más colores</span>
+        <div class="color-options">
+          <span class="color-close"></span>
+          <span>Cream</span>
+          <span>Gray</span>
+          <span>Black</span>
+          <span>Green</span>
+          <span>White</span>
+        </div>
+      </div>
+      <a href="#" class="bottom-bar-maca" id="macaLink">MACA ✽</a>
+    </div>
+  </div>
+
+  <script>
+    // Page fade-in
+    window.addEventListener('DOMContentLoaded', () => {
+      requestAnimationFrame(() => document.body.classList.add('loaded'));
+    });
+
+    // Top shadow on scroll
+    const topShadow = document.getElementById('topShadow');
+    window.addEventListener('scroll', () => {
+      topShadow.classList.toggle('visible', window.scrollY > 20);
+    });
+
+    // Page fade-out on navigation
+    document.querySelectorAll('a[href]').forEach(link => {
+      link.addEventListener('click', e => {
+        const href = link.getAttribute('href');
+        if (href && !href.startsWith('#') && !href.startsWith('javascript')) {
+          e.preventDefault();
+          document.body.classList.add('leaving');
+          setTimeout(() => window.location.href = href, 400);
+        }
+      });
+    });
+
+    // Color selector
+    const colorSelector = document.getElementById('colorSelector');
+    const colorToggle = colorSelector.querySelector('.color-toggle');
+    let collapseTimer;
+
+    colorToggle.addEventListener('click', () => {
+      colorSelector.classList.add('expanded');
+    });
+
+    colorSelector.querySelector('.color-close').addEventListener('click', () => {
+      colorSelector.classList.remove('expanded');
+    });
+
+    colorSelector.addEventListener('mouseleave', () => {
+      if (colorSelector.classList.contains('expanded')) {
+        collapseTimer = setTimeout(() => {
+          colorSelector.classList.remove('expanded');
+        }, 1500);
+      }
+    });
+
+    colorSelector.addEventListener('mouseenter', () => {
+      clearTimeout(collapseTimer);
+    });
+
+    // Maca
+    const macaLink = document.getElementById('macaLink');
+    const macaOverlay = document.getElementById('macaOverlay');
+    const macaChat = document.getElementById('macaChat');
+    let macaOpen = false;
+
+    function showBubble(text) {
+      return new Promise(resolve => {
+        const bubble = document.createElement('div');
+        bubble.className = 'maca-bubble';
+        bubble.textContent = text;
+        macaChat.appendChild(bubble);
+        requestAnimationFrame(() => {
+          bubble.classList.add('visible');
+          setTimeout(resolve, 600);
+        });
+      });
+    }
+
+    function fadeBubbles() {
+      macaChat.querySelectorAll('.maca-bubble').forEach(b => {
+        b.classList.remove('visible');
+        b.classList.add('faded');
+      });
+    }
+
+    async function openMaca() {
+      macaOpen = true;
+      macaOverlay.classList.add('active');
+      await showBubble('✽ ¡Hola! Soy Maca');
+      macaLink.textContent = 'Cerrar a Maca ✽';
+      await new Promise(r => setTimeout(r, 800));
+      if (!macaOpen) return;
+      await showBubble('Lo siento, aún no estoy disponible en esta sección');
+      await new Promise(r => setTimeout(r, 1200));
+      if (!macaOpen) return;
+      await showBubble('Pruébame en la sección de Gamas, ahí sí podré ayudarte.');
+    }
+
+    function closeMaca() {
+      macaOpen = false;
+      fadeBubbles();
+      macaOverlay.classList.remove('active');
+      macaLink.textContent = 'MACA ✽';
+      setTimeout(() => { macaChat.innerHTML = ''; }, 500);
+    }
+
+    macaLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (macaOpen) { closeMaca(); } else { openMaca(); }
+    });
+
+    // Card material hover
+    const grid = document.querySelector('.cards-grid');
+    const cards = document.querySelectorAll('.card-thumb');
+    cards.forEach(thumb => {
+      thumb.addEventListener('mouseenter', () => grid.classList.add('hover-active'));
+      thumb.addEventListener('mouseleave', () => grid.classList.remove('hover-active'));
+    });
+  </script>
+</body>
+</html>

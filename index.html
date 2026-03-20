@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cosentino</title>
+  <style>
+    @font-face {
+      font-family: 'Diagramm';
+      src: url('fonts/Diagramm-Regular.otf') format('opentype');
+      font-weight: 400;
+      font-style: normal;
+    }
+
+    @font-face {
+      font-family: 'Diagramm';
+      src: url('fonts/Diagramm-Medium.otf') format('opentype');
+      font-weight: 500;
+      font-style: normal;
+    }
+
+    html {
+      scroll-snap-type: none;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Diagramm', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow: hidden;
+    }
+
+    body.loaded {
+      overflow: auto;
+    }
+
+    /* Intro overlay */
+    .intro-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .intro-overlay.hidden {
+      display: none;
+    }
+
+    .intro-text {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      opacity: 0;
+      transition: opacity 0.8s ease;
+    }
+
+    .intro-text.visible {
+      opacity: 1;
+    }
+
+    .intro-text-line {
+      font-family: 'Diagramm', sans-serif;
+      font-weight: 500;
+      font-size: 14px;
+      letter-spacing: -0.02em;
+      text-transform: uppercase;
+    }
+
+    .intro-text-line--sub {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .intro-text-line--main {
+      color: rgba(255, 255, 255, 1);
+    }
+
+    /* Intro material label */
+    .intro-material {
+      position: fixed;
+      top: 50%;
+      right: 20%;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 101;
+      opacity: 0;
+      transition: opacity 0.8s ease;
+    }
+
+    .intro-material.visible {
+      opacity: 1;
+    }
+
+    /* UI elements hidden during intro */
+    header,
+    .bottom-bar,
+    .bottom-shadow {
+      opacity: 0;
+      transition: opacity 0.8s ease;
+    }
+
+    body.ui-visible header,
+    body.ui-visible .bottom-bar,
+    body.ui-visible .bottom-shadow {
+      opacity: 1;
+    }
+
+    .bottom-shadow.hidden {
+      opacity: 0 !important;
+    }
+
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      padding: 26px 24px 0 24px;
+      z-index: 10;
+      transition: color 0.3s;
+    }
+
+    header.dark .header-logo img {
+      filter: invert(1);
+    }
+
+    header.dark .header-nav a,
+    header.dark .header-right a {
+      color: #000000;
+    }
+
+    .bottom-bar.dark a,
+    .bottom-bar.dark span {
+      color: #000000;
+    }
+
+    .bottom-bar.dark .material-name {
+      color: #000000;
+    }
+
+    .bottom-bar.dark .material-collection {
+      color: rgba(0,0,0,0.5);
+    }
+
+    .bottom-bar.dark .material-swatch {
+      border: 1px solid rgba(0,0,0,0.2);
+    }
+
+    .header-logo {
+      width: 134px;
+      height: 14px;
+      flex-shrink: 0;
+    }
+
+    .header-logo img {
+      width: 100%;
+      height: 100%;
+      transition: filter 0.3s;
+    }
+
+    .header-nav {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .header-nav a {
+      font-family: 'Diagramm', sans-serif;
+      font-size: 14px;
+      line-height: 1;
+      color: white;
+      text-decoration: none;
+      opacity: 0.6;
+      transition: opacity 0.2s, color 0.3s;
+    }
+
+    .header-nav a:hover {
+      opacity: 1;
+    }
+
+    .header-right a {
+      font-family: 'Diagramm', sans-serif;
+      font-size: 14px;
+      line-height: 1;
+      color: white;
+      text-decoration: none;
+      opacity: 0.6;
+      transition: opacity 0.2s, color 0.3s;
+    }
+
+    .header-right a:hover {
+      opacity: 1;
+    }
+
+    .catalog-page .hero {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      opacity: 0;
+      transition: opacity 0.8s ease;
+    }
+
+    .catalog-page .hero.loaded {
+      opacity: 1;
+    }
+
+    .material-label {
+      position: absolute;
+      top: 50%;
+      right: 20%;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .material-swatch {
+      width: 12px;
+      height: 12px;
+      background-color: #c4b9a8;
+      flex-shrink: 0;
+    }
+
+    .material-name {
+      font-family: 'Diagramm', sans-serif;
+      font-size: 14px;
+      letter-spacing: -0.03em;
+      color: #ffffff;
+      white-space: nowrap;
+    }
+
+    .material-collection {
+      font-family: 'Diagramm', sans-serif;
+      font-size: 14px;
+      letter-spacing: -0.03em;
+      color: #D7D7D7;
+      white-space: nowrap;
+    }
+
+    .bottom-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      padding: 0 24px 30px 24px;
+      z-index: 20;
+    }
+
+    .bottom-bar-left {
+      position: absolute;
+      left: 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .bottom-bar-center {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+
+    .bottom-bar-maca {
+      opacity: 0.6;
+      transition: opacity 0.2s;
+    }
+
+    .bottom-bar-maca:hover {
+      opacity: 1;
+    }
+
+    .bottom-bar-group {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .bottom-bar a,
+    .bottom-bar span {
+      font-family: 'Diagramm', sans-serif;
+      font-weight: 500;
+      font-size: 14px;
+      color: white;
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: -0.02em;
+      white-space: nowrap;
+      transition: color 0.3s;
+    }
+
+    .bottom-bar .material-name,
+    .bottom-bar .material-collection {
+      text-transform: none;
+      font-weight: 400;
+      letter-spacing: -0.03em;
+    }
+
+    .bottom-bar .material-collection {
+      color: #D7D7D7;
+    }
+
+    .bottom-bar-material {
+      position: absolute;
+      right: 112px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .bottom-bar-material .material-name,
+    .bottom-bar-material .material-collection {
+      font-weight: 400;
+      letter-spacing: -0.03em;
+      text-transform: none;
+    }
+
+    .bottom-bar.dark .bottom-bar-material .material-name {
+      color: #000000;
+    }
+
+    .bottom-bar.dark .bottom-bar-material .material-collection {
+      color: rgba(0,0,0,0.5);
+    }
+
+    .bottom-bar-left a {
+      opacity: 0.6;
+      transition: opacity 0.2s;
+    }
+
+    .bottom-bar-left a.active {
+      opacity: 1;
+    }
+
+    .bottom-bar-left:hover a {
+      opacity: 0.6;
+    }
+
+    .bottom-bar-left:hover a:hover {
+      opacity: 1;
+    }
+
+    .bottom-bar-mid {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .bottom-bar-mid .color-toggle {
+      opacity: 0.6;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .bottom-bar-mid .color-toggle:hover {
+      opacity: 1;
+    }
+
+    .bottom-bar-mid .color-options {
+      display: none;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .bottom-bar-mid.expanded .color-toggle {
+      display: none;
+    }
+
+    .bottom-bar-mid.expanded .color-options {
+      display: flex;
+    }
+
+    .bottom-bar-mid .color-options span {
+      opacity: 0.6;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .bottom-bar-mid .color-options span:hover {
+      opacity: 1;
+    }
+
+    .color-close {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      position: relative;
+      font-size: 0;
+    }
+
+    .color-close::before,
+    .color-close::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      width: 100%;
+      height: 1px;
+      background: currentColor;
+    }
+
+    .color-close::before {
+      transform: rotate(45deg);
+    }
+
+    .color-close::after {
+      transform: rotate(-45deg);
+    }
+
+    .bottom-bar-color {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .bottom-bar-swatch {
+      width: 12px;
+      height: 12px;
+      background-color: #c4b9a8;
+      flex-shrink: 0;
+    }
+
+    .bottom-shadow {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 80px;
+      background: linear-gradient(to top, rgba(0,0,0,0.25), transparent);
+      mix-blend-mode: multiply;
+      z-index: 19;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    .dual-images {
+      position: relative;
+      display: flex;
+      width: 100%;
+      height: 100vh;
+    }
+
+    .dual-images img {
+      width: 50%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+    }
+
+    .single-image {
+      margin-top: 267px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .single-image img {
+      display: block;
+      max-width: 960px;
+      max-height: 75vh;
+    }
+
+    .image-label {
+      position: absolute;
+      top: 30%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 25;
+    }
+
+    .sticky-text-area {
+      position: relative;
+    }
+
+    .sticky-text {
+      position: sticky;
+      top: 346px;
+      font-family: 'Diagramm', sans-serif;
+      font-weight: 400;
+      font-size: 16px;
+      letter-spacing: -0.05em;
+      color: #000000;
+      z-index: 5;
+      pointer-events: none;
+    }
+
+    .sticky-text--left {
+      float: left;
+      margin-left: 24px;
+    }
+
+    .sticky-text--right {
+      float: right;
+      margin-right: 24px;
+    }
+
+    .dining-section {
+      position: relative;
+      margin-top: 296px;
+    }
+
+    .dining-section img {
+      width: 100%;
+      height: 100vh;
+      display: block;
+      object-fit: cover;
+    }
+
+    /* Page intro text for pages 2+ */
+    /* Maca agent overlay */
+    .maca-overlay {
+      position: fixed;
+      bottom: 62px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+    }
+
+    .maca-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .maca-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 1.2s ease;
+      z-index: 49;
+    }
+
+    .maca-bg.visible {
+      opacity: 1;
+    }
+
+    .maca-chat {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      max-width: 500px;
+    }
+
+    .maca-bubble {
+      background: rgba(48, 38, 28, 0.6);
+      color: #ffffff;
+      font-family: 'Diagramm', sans-serif;
+      font-weight: 400;
+      font-size: 14px;
+      letter-spacing: -0.02em;
+      padding: 12px 20px;
+      border-radius: 20px;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+      white-space: nowrap;
+    }
+
+    .maca-bubble.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .maca-bubble.faded {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+
+
+    .maca-input {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 20px;
+      padding: 12px 20px;
+      font-family: 'Diagramm', sans-serif;
+      font-weight: 400;
+      font-size: 14px;
+      letter-spacing: -0.02em;
+      color: #ffffff;
+      min-width: 420px;
+      outline: none;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+      cursor: pointer;
+    }
+
+    .maca-input.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .maca-input.faded {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+
+    .maca-input::placeholder {
+      color: rgba(255,255,255,0.5);
+    }
+
+    .maca-spinner {
+      font-size: 28px;
+      color: rgba(255,255,255,0.8);
+      opacity: 0;
+      transition: opacity 0.6s ease;
+    }
+
+    .maca-spinner.visible {
+      opacity: 1;
+    }
+
+    @keyframes gentleSpin {
+      0%, 65% { transform: rotate(0deg); }
+      85%, 100% { transform: rotate(180deg); }
+    }
+
+    .maca-spinner.spinning {
+      animation: gentleSpin 3s ease-in-out infinite;
+    }
+
+    .page-intro-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      align-items: center;
+      opacity: 0;
+      transition: opacity 0.8s ease;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .page-intro-text.visible {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <!-- Intro overlay -->
+  <div class="intro-overlay" id="introOverlay">
+    <div class="intro-text" id="introText">
+      <span class="intro-text-line intro-text-line--sub">Mediterranean inspired</span>&nbsp;<span class="intro-text-line intro-text-line--main">Cream Materials</span>
+    </div>
+  </div>
+  <div class="intro-material" id="introMaterial">
+    <div class="material-swatch"></div>
+    <span class="material-name">Calacatta Tova</span>
+    <span class="material-collection">Silestone - Le chic</span>
+  </div>
+
+  <header>
+    <div class="header-logo">
+      <img src="logo.svg" alt="Cosentino">
+    </div>
+    <nav class="header-nav">
+      <a href="catalogo.html">Colores</a>
+      <a href="#">Marcas</a>
+      <a href="#">Espacios</a>
+      <a href="#">Inspiración</a>
+      <a href="#">Simuladores</a>
+      <a href="#">Showroom</a>
+      <a href="#">Donde Comprar</a>
+    </nav>
+    <div class="header-right">
+      <a href="#">Profesionales</a>
+    </div>
+  </header>
+  <div class="bottom-shadow"></div>
+  <div class="bottom-bar">
+    <div class="bottom-bar-left">
+      <a href="#" class="active">Gamas</a>
+      <a href="catalogo.html">Catálogo</a>
+    </div>
+    <div class="bottom-bar-center">
+      <div class="bottom-bar-mid" id="colorSelector">
+        <span class="color-toggle">Más colores</span>
+        <div class="color-options">
+          <span class="color-close"></span>
+          <span>Cream</span>
+          <span>Gray</span>
+          <span>Black</span>
+          <span>Green</span>
+          <span>White</span>
+        </div>
+      </div>
+      <a href="#" class="bottom-bar-maca" id="macaLink">MACA ✽</a>
+    </div>
+    <div class="bottom-bar-material">
+      <div class="material-swatch" id="barSwatch"></div>
+      <span class="material-name" id="barMaterialName">Calacatta Tova</span>
+      <span class="material-collection" id="barMaterialCollection">Silestone - Le chic</span>
+    </div>
+  </div>
+
+  <!-- Page 1 -->
+  <div class="catalog-page">
+    <section class="hero material-block" data-material-name="Calacatta Tova" data-material-collection="Silestone - Le chic" data-swatch-color="#c4b9a8" style="background-image: url('hero.png');">
+    </section>
+    <section class="dual-images material-block" data-material-name="Blanc Du Blanc" data-material-collection="Silestone - Le chic" data-swatch-color="#e8e0d4">
+      <img src="img-kitchen.png" alt="Cocina">
+      <img src="img-firepit.png" alt="Exterior">
+    </section>
+    <div class="sticky-text-area">
+      <div class="sticky-text sticky-text--left">Mediterranean inspired</div>
+      <div class="sticky-text sticky-text--right">Creme Materials</div>
+      <section class="single-image material-block" data-material-name="Desert Silver" data-material-collection="Silestone - Le chic" data-swatch-color="#b5a99a">
+        <img src="img-room.png" alt="Sala">
+      </section>
+      <section class="single-image material-block" data-material-name="Pietra" data-material-collection="Silestone - Le chic" data-swatch-color="#c8bfb0" style="margin-top: 314px;">
+        <img src="img-bedroom.png" alt="Dormitorio">
+      </section>
+    </div>
+    <section class="dining-section material-block" data-material-name="Noka" data-material-collection="Silestone - Le chic" data-swatch-color="#a89b8a">
+      <img src="img-dining.png" alt="Comedor">
+    </section>
+  </div>
+
+  <!-- Page 2 -->
+  <div class="catalog-page">
+    <section class="hero loaded material-block" data-material-name="Brass Relish" data-material-collection="Silestone - Loft" data-swatch-color="#6b6560" style="background-image: url('img-brass-relish.avif');">
+      <div class="page-intro-text">
+        <span class="intro-text-line intro-text-line--sub">Melt with the ambient</span>&nbsp;<span class="intro-text-line intro-text-line--main">Gray Materials</span>
+      </div>
+    </section>
+    <section class="dual-images material-block" data-material-name="Cinder Craze" data-material-collection="Silestone - Loft" data-swatch-color="#4a4744">
+      <img src="img-cinder-craze-detail.avif" alt="Cocina detalle">
+      <img src="img-cinder-craze-2.jpg" alt="Cocina isla">
+    </section>
+    <div class="sticky-text-area">
+      <div class="sticky-text sticky-text--left">Melt with the ambient</div>
+      <div class="sticky-text sticky-text--right">Gray Materials</div>
+      <section class="single-image material-block" data-material-name="Cinder Craze" data-material-collection="Silestone - Loft" data-swatch-color="#4a4744">
+        <img src="img-cinder-craze-moodboard.avif" alt="Moodboard">
+      </section>
+      <section class="single-image material-block" data-material-name="Cinder Craze" data-material-collection="Silestone - Loft" data-swatch-color="#4a4744" style="margin-top: 314px;">
+        <img src="img-cinder-craze-sink.jpg" alt="Fregadero">
+      </section>
+    </div>
+    <section class="dining-section material-block" data-material-name="Cinder Craze" data-material-collection="Silestone - Loft" data-swatch-color="#4a4744">
+      <img src="img-cinder-craze-dining.avif" alt="Cocina general">
+    </section>
+  </div>
+
+  <!-- Page 3 -->
+  <div class="catalog-page">
+    <section class="hero loaded material-block" data-material-name="Blanc Du Blanc" data-material-collection="Silestone - Le chic" data-swatch-color="#f5f0ea" style="background-image: url('img-sqala-hero.avif');">
+      <div class="page-intro-text">
+        <span class="intro-text-line intro-text-line--sub">Bold & timeless</span>&nbsp;<span class="intro-text-line intro-text-line--main">White Materials</span>
+      </div>
+    </section>
+    <section class="dual-images material-block" data-material-name="Calacatta Gold" data-material-collection="Silestone - Eternal" data-swatch-color="#f2ede5">
+      <img src="img-sqala-dual1.avif" alt="Sqala interior">
+      <img src="img-sqala-dual2.avif" alt="Sqala detalle">
+    </section>
+    <div class="sticky-text-area">
+      <div class="sticky-text sticky-text--left">Bold & timeless</div>
+      <div class="sticky-text sticky-text--right">White Materials</div>
+      <section class="single-image material-block" data-material-name="Ethereal Glow" data-material-collection="Silestone - Ethereal" data-swatch-color="#eae4dc">
+        <img src="img-sqala-single1.avif" alt="Sqala detalle">
+      </section>
+      <section class="single-image material-block" data-material-name="Arctic White" data-material-collection="Silestone - Le chic" data-swatch-color="#f0ece6" style="margin-top: 314px;">
+        <img src="img-sqala-single2.avif" alt="Sqala espacio">
+      </section>
+    </div>
+    <div style="height: 120px;"></div>
+  </div>
+
+  <!-- Maca overlay -->
+  <div class="maca-bg" id="macaBg"></div>
+  <div class="maca-overlay" id="macaOverlay">
+    <div class="maca-chat" id="macaChat"></div>
+  </div>
+
+  <script>
+    // ---- INTRO SEQUENCE ----
+    const introOverlay = document.getElementById('introOverlay');
+    const introText = document.getElementById('introText');
+    const introMaterial = document.getElementById('introMaterial');
+    const heroImg = new Image();
+    heroImg.src = 'hero.png';
+
+    function runIntro() {
+      // Step 0: Fade in hero image
+      document.querySelector('.catalog-page .hero').classList.add('loaded');
+
+      // Step 1: Image loaded → show centered text
+      setTimeout(() => {
+        introText.classList.add('visible');
+      }, 300);
+
+      // Step 2: Material label disabled for now
+      // setTimeout(() => {
+      //   introMaterial.classList.add('visible');
+      // }, 1800);
+
+      // Step 3: Show UI (keep intro text visible)
+      setTimeout(() => {
+        document.body.classList.add('ui-visible');
+      }, 3200);
+
+      // Step 4: Enable scroll, keep intro text visible
+      setTimeout(() => {
+        document.body.classList.add('loaded');
+      }, 4000);
+    }
+
+    if (heroImg.complete) {
+      runIntro();
+    } else {
+      heroImg.onload = runIntro;
+    }
+
+    // ---- MAIN UI ----
+    const header = document.querySelector('header');
+    const bottomBar = document.querySelector('.bottom-bar');
+    const pages = document.querySelectorAll('.catalog-page');
+
+    // Page intro text (show when hero is snapped in view)
+    function updatePageIntros() {
+      // Page 1 intro overlay
+      if (introText.classList.contains('visible')) {
+        const hero1 = pages[0].querySelector('.hero');
+        const rect1 = hero1.getBoundingClientRect();
+        if (rect1.top < -100) {
+          introText.style.opacity = '0';
+        } else {
+          introText.style.opacity = '';
+        }
+      }
+
+      // Pages 2+
+      const pagesArr = Array.from(pages);
+      for (let i = 1; i < pagesArr.length; i++) {
+        const text = pagesArr[i].querySelector('.page-intro-text');
+        if (!text) continue;
+        const hero = pagesArr[i].querySelector('.hero');
+        const rect = hero.getBoundingClientRect();
+        if (rect.top > -50 && rect.top < 50) {
+          text.classList.add('visible');
+        } else {
+          text.classList.remove('visible');
+        }
+      }
+    }
+
+    function isInWhiteZone(scrollY, viewportHeight, headerHeight, fromTop) {
+      let inWhite = false;
+      pages.forEach(page => {
+        const dualImages = page.querySelector('.dual-images');
+        if (!dualImages) return;
+        const dining = page.querySelector('.dining-section');
+        const whiteStart = dualImages.offsetTop + dualImages.offsetHeight;
+        const whiteEnd = dining ? dining.offsetTop + dining.offsetHeight : page.offsetTop + page.offsetHeight;
+        const diningTop = dining ? dining.offsetTop : page.offsetTop + page.offsetHeight;
+
+        if (fromTop) {
+          if (scrollY + headerHeight >= whiteStart && scrollY < diningTop) inWhite = true;
+        } else {
+          if (scrollY + viewportHeight > whiteStart && scrollY + viewportHeight <= whiteEnd) inWhite = true;
+        }
+      });
+      return inWhite;
+    }
+
+    const barSwatch = document.getElementById('barSwatch');
+    const barMaterialName = document.getElementById('barMaterialName');
+    const barMaterialCollection = document.getElementById('barMaterialCollection');
+    const materialBlocks = document.querySelectorAll('.material-block');
+    let currentBlock = null;
+
+    function updateActiveBlock(scrollY, viewportHeight) {
+      const centerY = viewportHeight / 2;
+      for (const block of materialBlocks) {
+        const rect = block.getBoundingClientRect();
+        if (centerY >= rect.top && centerY < rect.bottom) {
+          if (block !== currentBlock) {
+            currentBlock = block;
+            barMaterialName.textContent = block.dataset.materialName;
+            barMaterialCollection.textContent = block.dataset.materialCollection;
+            barSwatch.style.backgroundColor = block.dataset.swatchColor;
+          }
+          break;
+        }
+      }
+    }
+
+    function updateUI() {
+      const scrollY = window.scrollY;
+      const viewportHeight = window.innerHeight;
+      const headerHeight = header.offsetHeight;
+
+      const bottomInWhite = isInWhiteZone(scrollY, viewportHeight, headerHeight, false);
+      header.classList.toggle('dark', isInWhiteZone(scrollY, viewportHeight, headerHeight, true));
+      bottomBar.classList.toggle('dark', bottomInWhite);
+      document.querySelector('.bottom-shadow').classList.toggle('hidden', bottomInWhite);
+      updateActiveBlock(scrollY, viewportHeight);
+    }
+
+    // Custom snap with easing
+    let isSnapping = false;
+    let scrollTimeout;
+
+    function easeInOutCubic(t) {
+      return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    }
+
+    function smoothSnapTo(target) {
+      if (isSnapping) return;
+      isSnapping = true;
+      const start = window.scrollY;
+      const distance = target - start;
+      const duration = 800;
+      let startTime;
+
+      function step(timestamp) {
+        if (!startTime) startTime = timestamp;
+        const elapsed = timestamp - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = easeInOutCubic(progress);
+        window.scrollTo(0, start + distance * eased);
+        if (progress < 1) {
+          requestAnimationFrame(step);
+        } else {
+          isSnapping = false;
+        }
+      }
+      requestAnimationFrame(step);
+    }
+
+    function absTop(el) {
+      return el.getBoundingClientRect().top + window.scrollY;
+    }
+
+    function handleSnap() {
+      if (isSnapping) return;
+      const scrollY = window.scrollY;
+      const vh = window.innerHeight;
+
+      const pagesArr = Array.from(pages);
+      for (let i = 0; i < pagesArr.length; i++) {
+        const page = pagesArr[i];
+        const heroTop = absTop(page.querySelector('.hero'));
+        const dualTop = absTop(page.querySelector('.dual-images'));
+        const dining = page.querySelector('.dining-section');
+        const diningTop = absTop(dining);
+        const diningHeight = dining.offsetHeight;
+        const diningVisible = scrollY + vh - diningTop;
+
+        // Hero ↔ Dual snap
+        if (scrollY > heroTop && scrollY < dualTop + vh * 0.65 && scrollY > 0) {
+          let closest;
+          if (scrollY < heroTop + vh * 0.5) {
+            closest = heroTop;
+          } else if (scrollY < dualTop + vh * 0.35) {
+            closest = dualTop;
+          }
+          if (closest !== undefined && Math.abs(scrollY - closest) > 10) {
+            smoothSnapTo(closest);
+            return;
+          }
+        }
+
+        // Dining snap
+        if (diningVisible > diningHeight * 0.4 && diningVisible < diningHeight * 0.9) {
+          smoothSnapTo(diningTop);
+          return;
+        }
+
+        // Dining → Next page hero snap
+        const nextPage = pagesArr[i + 1];
+        if (nextPage) {
+          const nextHeroTop = absTop(nextPage.querySelector('.hero'));
+          if (scrollY > diningTop && scrollY < nextHeroTop) {
+            const progress = (scrollY - diningTop) / (nextHeroTop - diningTop);
+            if (progress > 0.35) {
+              smoothSnapTo(nextHeroTop);
+            } else if (progress > 0.05) {
+              smoothSnapTo(diningTop);
+            }
+            return;
+          }
+        }
+      }
+    }
+
+    // ---- COLOR SELECTOR ----
+    const colorSelector = document.getElementById('colorSelector');
+    const colorToggle = colorSelector.querySelector('.color-toggle');
+    let collapseTimer;
+
+    colorToggle.addEventListener('click', () => {
+      colorSelector.classList.add('expanded');
+    });
+
+    colorSelector.querySelector('.color-close').addEventListener('click', () => {
+      colorSelector.classList.remove('expanded');
+    });
+
+    colorSelector.addEventListener('mouseleave', () => {
+      if (colorSelector.classList.contains('expanded')) {
+        collapseTimer = setTimeout(() => {
+          colorSelector.classList.remove('expanded');
+        }, 1500);
+      }
+    });
+
+    colorSelector.addEventListener('mouseenter', () => {
+      clearTimeout(collapseTimer);
+    });
+
+    window.addEventListener('scroll', function() {
+      updateUI();
+      updatePageIntros();
+      clearTimeout(scrollTimeout);
+      if (!isSnapping) {
+        scrollTimeout = setTimeout(handleSnap, 150);
+      }
+    });
+    updateUI();
+
+    // ---- MACA AGENT ----
+    const macaOverlay = document.getElementById('macaOverlay');
+    const macaChat = document.getElementById('macaChat');
+    const macaBg = document.getElementById('macaBg');
+    const macaLink = document.getElementById('macaLink');
+    let macaCancelled = false;
+
+    function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+    function typeText(el, text, speed) {
+      return new Promise(resolve => {
+        let i = 0; el.textContent = '';
+        (function t() {
+          if (i < text.length) { el.textContent += text[i]; i++; setTimeout(t, speed); }
+          else resolve();
+        })();
+      });
+    }
+
+    function typeInputText(input, text) {
+      return new Promise(resolve => {
+        let i = 0; input.value = '';
+        (function t() {
+          if (i < text.length) { input.value += text[i]; i++; setTimeout(t, 45); }
+          else resolve();
+        })();
+      });
+    }
+
+    function fadePrev() {
+      macaChat.querySelectorAll('.visible').forEach(el => {
+        el.classList.add('faded');
+        el.classList.remove('visible');
+      });
+    }
+
+    async function showBubble(text) {
+      fadePrev();
+      await wait(400);
+      const b = document.createElement('div');
+      b.className = 'maca-bubble';
+      macaChat.appendChild(b);
+      await wait(50);
+      b.classList.add('visible');
+      await typeText(b, text, 70);
+      await wait(300);
+    }
+
+    function showInput(autoText) {
+      return new Promise(resolve => {
+        setTimeout(() => {
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.className = 'maca-input';
+          input.placeholder = 'Escribe tu respuesta';
+          input.readOnly = true;
+          macaChat.appendChild(input);
+          setTimeout(() => input.classList.add('visible'), 50);
+
+          input.addEventListener('click', async () => {
+            if (input.dataset.sent) return;
+            input.dataset.sent = '1';
+            await typeInputText(input, autoText);
+            await wait(800);
+            fadePrev();
+            await wait(400);
+            resolve();
+          }, { once: true });
+        }, 600);
+      });
+    }
+
+    async function showSpinner(duration) {
+      macaChat.innerHTML = '';
+      const s = document.createElement('div');
+      s.className = 'maca-spinner';
+      s.textContent = '✽';
+      macaChat.appendChild(s);
+      await wait(50);
+      s.classList.add('visible');
+      await wait(300);
+      s.classList.add('spinning');
+      await wait(duration);
+      s.classList.remove('visible');
+      await wait(600);
+    }
+
+    let macaOpen = false;
+
+    async function openMaca() {
+      macaCancelled = false;
+      macaOpen = true;
+      macaOverlay.classList.add('active');
+      macaChat.innerHTML = '';
+      macaBg.classList.remove('visible');
+      macaBg.style.backgroundImage = '';
+
+      await wait(500);
+      if (macaCancelled) return;
+      await showBubble('✽ ¡Hola! Soy Maca');
+      macaLink.textContent = 'Cerrar a Maca ✽';
+      await wait(800);
+      if (macaCancelled) return;
+      await showBubble('Soy la agente de Cosentino.');
+      await wait(900);
+      if (macaCancelled) return;
+      await showBubble('Entrenada para acompañarte.');
+      await wait(1000);
+      if (macaCancelled) return;
+      await showBubble('¿Cómo puedo ayudarte?');
+
+      if (macaCancelled) return;
+      await showInput('Busco inspirarme con espacios fríos y brutalistas');
+
+      if (macaCancelled) return;
+      await showBubble('Muy bien, déjame buscar.');
+      await wait(600);
+      fadePrev();
+      await wait(400);
+
+      if (macaCancelled) return;
+      await showSpinner(3000);
+
+      if (macaCancelled) return;
+      macaBg.style.backgroundImage = "url('img-maca-result.png')";
+      macaBg.classList.add('visible');
+      macaChat.innerHTML = '';
+      await wait(1200);
+
+      if (macaCancelled) return;
+      await showBubble('¿Quieres ver más como esta?');
+
+      if (macaCancelled) return;
+      await showInput('Me gusta, guárdalo entre mis favoritos');
+
+      if (macaCancelled) return;
+      await showBubble('Claro. Guardado en tus favoritos.');
+
+      if (macaCancelled) return;
+      await showInput('Gracias, quiero volver a los espacios anteriores');
+
+      if (macaCancelled) return;
+      await showBubble('¡Perfecto! Ha sido un placer. ✽');
+      await wait(2000);
+
+      closeMaca();
+    }
+
+    function closeMaca() {
+      macaCancelled = true;
+      macaOpen = false;
+      macaLink.textContent = 'MACA ✽';
+      macaBg.classList.remove('visible');
+      macaOverlay.classList.remove('active');
+      macaChat.innerHTML = '';
+    }
+
+    macaLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (macaOpen) {
+        closeMaca();
+      } else {
+        openMaca();
+      }
+    });
+
+    // Page fade-out on navigation
+    document.querySelectorAll('a[href]').forEach(link => {
+      link.addEventListener('click', e => {
+        const href = link.getAttribute('href');
+        if (href && !href.startsWith('#') && !href.startsWith('javascript') && href !== '#') {
+          e.preventDefault();
+          document.body.style.transition = 'opacity 0.4s ease';
+          document.body.style.opacity = '0';
+          setTimeout(() => window.location.href = href, 400);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
