@@ -1452,7 +1452,16 @@
       await showBubble('Claro. Guardado en tus favoritos.');
 
       if (macaCancelled) return;
-      await showInput('Gracias, quiero volver a los espacios anteriores');
+      await showInput('¿Por qué te llamas Maca?');
+
+      if (macaCancelled) return;
+      await showBubble('Mi nombre viene de Macael, el pueblo donde nació Cosentino.');
+      await wait(1000);
+      if (macaCancelled) return;
+      await showBubble('¿Qué quieres hacer ahora?');
+
+      if (macaCancelled) return;
+      await showInput('Quiero volver a los espacios anteriores');
 
       if (macaCancelled) return;
       await showBubble('¡Perfecto! Ha sido un placer. ✽');
