@@ -148,6 +148,20 @@
       z-index: 2;
     }
 
+    .detail-back {
+      font-family: 'Diagramm', sans-serif;
+      font-size: 14px;
+      font-weight: 400;
+      color: rgba(255,255,255,0.6);
+      text-decoration: none;
+      margin-bottom: 18px;
+      transition: color 0.2s;
+    }
+
+    .detail-back:hover {
+      color: rgba(255,255,255,1);
+    }
+
     /* Text block — bottom left */
     .detail-text {
       display: flex;
@@ -612,6 +626,7 @@
   <section class="hero" id="hero" style="background-image: url('detalle-hero.png');">
     <div class="hero-content">
       <div class="detail-text">
+        <a href="javascript:history.back()" class="detail-back">Volver</a>
         <h1 class="detail-title">Cinder Craze</h1>
         <p class="detail-subtitle">Silestone — Loft</p>
       </div>
