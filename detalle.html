@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cosentino - Detalle</title>
+  <style>
+    @font-face {
+      font-family: 'Diagramm';
+      src: url('fonts/Diagramm-Regular.otf') format('opentype');
+      font-weight: 400;
+      font-style: normal;
+    }
+
+    @font-face {
+      font-family: 'Diagramm';
+      src: url('fonts/Diagramm-Medium.otf') format('opentype');
+      font-weight: 500;
+      font-style: normal;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Diagramm', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      background: #F5F5F5;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    body.loaded {
+      opacity: 1;
+    }
+
+    body.leaving {
+      opacity: 0;
+    }
+
+    /* Header — same as index.html */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      padding: 26px 24px 0 24px;
+      z-index: 10;
+    }
+
+    .header-logo {
+      width: 134px;
+      height: 14px;
+      flex-shrink: 0;
+    }
+
+    .header-logo img {
+      width: 100%;
+      height: 100%;
+      transition: filter 0.3s;
+    }
+
+    header.dark .header-logo img {
+      filter: invert(1);
+    }
+
+    header.dark .header-nav a,
+    header.dark .header-right a {
+      color: #000;
+    }
+
+    header.dark .hamburger span {
+      background: #000;
+    }
+
+    .header-nav {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .header-nav a {
+      font-family: 'Diagramm', sans-serif;
+      font-size: 14px;
+      line-height: 1;
+      color: white;
+      text-decoration: none;
+      opacity: 0.6;
+      transition: opacity 0.2s;
+    }
+
+    .header-nav a:hover {
+      opacity: 1;
+    }
+
+    .header-right a {
+      font-family: 'Diagramm', sans-serif;
+      font-size: 14px;
+      line-height: 1;
+      color: white;
+      text-decoration: none;
+      opacity: 0.6;
+      transition: opacity 0.2s;
+    }
+
+    .header-right a:hover {
+      opacity: 1;
+    }
+
+    /* Hero */
+    .hero {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      transition: background-image 0.6s ease;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 40%;
+      background: linear-gradient(to top, rgba(0,0,0,0.45), transparent);
+      pointer-events: none;
+    }
+
+    /* Content overlay — bottom of hero */
+    .hero-content {
+      position: absolute;
+      bottom: 24px;
+      left: 24px;
+      right: 24px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      z-index: 2;
+    }
+
+    /* Text block — bottom left */
+    .detail-text {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .detail-title {
+      color: #FFF;
+      font-family: 'Diagramm', sans-serif;
+      font-size: 44px;
+      font-weight: 500;
+      line-height: 48px;
+      letter-spacing: -2.2px;
+    }
+
+    .detail-subtitle {
+      color: rgba(255, 255, 255, 0.70);
+      font-family: 'Diagramm', sans-serif;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: normal;
+    }
+
+    /* Description section */
+    .detail-description {
+      background: #F5F5F5;
+      padding: 48px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 24px;
+    }
+
+    .detail-description p {
+      color: #000;
+      font-family: 'Diagramm', sans-serif;
+      font-size: 32px;
+      font-weight: 400;
+      line-height: 1.25;
+      letter-spacing: -1.6px;
+    }
+
+    /* Photo + Specs row */
+    .detail-row {
+      margin-top: 120px;
+      padding: 0 24px;
+      display: flex;
+      align-items: flex-end;
+      gap: 24px;
+    }
+
+    .detail-photo {
+      flex-shrink: 0;
+    }
+
+    .detail-photo img {
+      width: 612px;
+      height: 769px;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* Specs panel */
+    .detail-specs {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .specs-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    .spec-card {
+      border-top: 1px solid rgba(0,0,0,0.15);
+      padding-top: 16px;
+      padding-bottom: 24px;
+    }
+
+    .spec-title {
+      color: #000;
+      font-family: 'Diagramm', sans-serif;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: normal;
+      margin-bottom: 4px;
+    }
+
+    .spec-body {
+      color: rgba(0, 0, 0, 0.70);
+      font-family: 'Diagramm', sans-serif;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: normal;
+    }
+
+    .spec-body a {
+      color: rgba(0, 0, 0, 0.70);
+      text-decoration: underline;
+      transition: color 0.2s;
+    }
+
+    .spec-body a:hover {
+      color: #000;
+    }
+
+    .spec-entry {
+      margin-top: 16px;
+    }
+
+    /* Thickness bars */
+    .thickness-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .thickness-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .thickness-bar {
+      height: 2px;
+      background: #000;
+      flex-shrink: 0;
+    }
+
+    .thickness-label {
+      color: rgba(0, 0, 0, 0.70);
+      font-family: 'Diagramm', sans-serif;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: normal;
+    }
+
+    /* Fullwidth image */
+    .detail-fullwidth {
+      margin-top: 120px;
+    }
+
+    .detail-fullwidth img {
+      width: 100%;
+      display: block;
+    }
+
+    /* Dual images */
+    .detail-dual {
+      margin-top: 120px;
+      padding: 0 24px 24px 24px;
+      display: flex;
+      gap: 0;
+    }
+
+    .detail-dual img {
+      width: 50%;
+      height: auto;
+      display: block;
+      object-fit: cover;
+    }
+
+    /* Similar colors section */
+    .detail-similar {
+      margin-top: 370px;
+      padding: 0 24px 24px 24px;
+      display: flex;
+      align-items: flex-end;
+      gap: 24px;
+    }
+
+    .similar-title {
+      color: #000;
+      font-family: 'Diagramm', sans-serif;
+      font-size: 32px;
+      font-weight: 500;
+      line-height: normal;
+      letter-spacing: -1.6px;
+      flex-shrink: 0;
+      white-space: nowrap;
+      padding-bottom: 4px;
+    }
+
+    .similar-cards {
+      display: flex;
+      gap: 24px;
+      margin-left: auto;
+    }
+
+    .similar-card {
+      width: 206px;
+      flex-shrink: 0;
+    }
+
+    .similar-card img {
+      width: 206px;
+      height: auto;
+      display: block;
+    }
+
+    .similar-card-title {
+      color: #000;
+      font-family: 'Diagramm', sans-serif;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: normal;
+      letter-spacing: -0.42px;
+      margin-top: 10px;
+    }
+
+    .similar-card-subtitle {
+      color: #B3B3B3;
+      font-family: 'Diagramm', sans-serif;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: normal;
+      letter-spacing: -0.42px;
+    }
+
+    .btn-muestra {
+      display: inline-block;
+      background: #000;
+      color: #FFF;
+      font-family: 'Diagramm', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: normal;
+      letter-spacing: -0.7px;
+      padding: 12px 20px;
+      border-radius: 4px;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    /* Hamburger (hidden on desktop) */
+    .hamburger {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+      z-index: 60;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .hamburger span {
+      display: block;
+      width: 24px;
+      height: 1.5px;
+      background: #fff;
+      transition: transform 0.3s;
+    }
+    .hamburger.open span:first-child {
+      transform: translateY(3.75px) rotate(45deg);
+    }
+    .hamburger.open span:last-child {
+      transform: translateY(-3.75px) rotate(-45deg);
+    }
+
+    /* Mobile menu overlay */
+    .mobile-menu-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.92);
+      z-index: 55;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 32px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .mobile-menu-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .mobile-menu-overlay a {
+      font-family: 'Diagramm', sans-serif;
+      font-size: 24px;
+      color: #fff;
+      text-decoration: none;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+    }
+    .mobile-menu-overlay a:hover {
+      opacity: 1;
+    }
+
+    /* ---- MOBILE ---- */
+    @media (max-width: 768px) {
+      header {
+        padding: 20px 16px 0 16px;
+      }
+      .header-nav,
+      .header-right {
+        display: none;
+      }
+      .hamburger {
+        display: flex;
+      }
+
+      .hero {
+        height: 100svh;
+      }
+
+      .hero-content {
+        bottom: 20px;
+        left: 16px;
+        right: 16px;
+        flex-direction: column;
+        gap: 20px;
+        align-items: flex-start;
+      }
+
+      .detail-title {
+        font-size: 32px;
+        line-height: 36px;
+        letter-spacing: -1.6px;
+      }
+
+      .detail-thumbs {
+        width: 100%;
+        justify-content: flex-start;
+      }
+
+      .detail-description {
+        padding: 32px 16px;
+      }
+
+      .detail-description p {
+        font-size: 22px;
+        letter-spacing: -1.1px;
+      }
+
+      .detail-row {
+        margin-top: 60px;
+        padding: 0 16px;
+        flex-direction: column;
+      }
+
+      .detail-photo img {
+        width: 100%;
+        height: auto;
+      }
+
+      .specs-row {
+        grid-template-columns: 1fr;
+      }
+
+      .detail-dual {
+        margin-top: 60px;
+        padding: 0 16px;
+        flex-direction: column;
+      }
+
+      .detail-dual img {
+        width: 100%;
+      }
+
+      .detail-similar {
+        margin-top: 120px;
+        padding: 0 16px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 24px;
+      }
+
+      .similar-cards {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        width: 100%;
+        margin-left: 0;
+      }
+
+      .similar-card {
+        width: 100%;
+      }
+
+      .similar-card img {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-logo">
+      <img src="logo.svg" alt="Cosentino">
+    </div>
+    <nav class="header-nav">
+      <a href="catalogo.html">Colores</a>
+      <a href="#">Marcas</a>
+      <a href="#">Espacios</a>
+      <a href="#">Inspiración</a>
+      <a href="#">Simuladores</a>
+      <a href="#">Showroom</a>
+      <a href="#">Donde Comprar</a>
+    </nav>
+    <div class="header-right">
+      <a href="#">Profesionales</a>
+    </div>
+    <button class="hamburger" id="hamburger" aria-label="Menu">
+      <span></span><span></span>
+    </button>
+  </header>
+
+  <section class="hero" id="hero" style="background-image: url('detalle-hero.png');">
+    <div class="hero-content">
+      <div class="detail-text">
+        <h1 class="detail-title">Cinder Craze</h1>
+        <p class="detail-subtitle">Silestone — Loft</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="detail-description">
+    <p>Grandes vetas e incrustaciones de grano de diversos tamaños recuerdan a la vía láctea en un cielo estrellado. El azul de su fondo refuerza la profundidad de Romantic Ash.</p>
+    <a href="#" class="btn-muestra">Pedir muestra</a>
+  </section>
+
+  <section class="detail-row">
+    <div class="detail-photo">
+      <img src="detalle-photo-01.png" alt="Interior con chimenea">
+    </div>
+    <div class="detail-specs">
+      <div class="specs-row">
+        <div class="spec-card">
+          <div class="spec-title">Suede N-BOOST</div>
+          <div class="spec-body">Las mismas propiedades que Suede más propiedades hidrófugas</div>
+          <div class="spec-entry">
+            <div class="spec-title">Pulido N-BOOST</div>
+            <div class="spec-body">Mismas propiedades que Polished más propiedades repelentes al agua.</div>
+          </div>
+        </div>
+        <div class="spec-card">
+          <div class="spec-title">Formato</div>
+          <div class="spec-body">327 x 159 cm</div>
+        </div>
+      </div>
+      <div class="specs-row">
+        <div class="spec-card">
+          <div class="spec-title">Espesores</div>
+          <div class="thickness-list">
+            <div class="thickness-item">
+              <div class="thickness-bar" style="width: 24px;"></div>
+              <span class="thickness-label">1,2 cm</span>
+            </div>
+            <div class="thickness-item">
+              <div class="thickness-bar" style="width: 32px;"></div>
+              <span class="thickness-label">2,0 cm</span>
+            </div>
+            <div class="thickness-item">
+              <div class="thickness-bar" style="width: 40px;"></div>
+              <span class="thickness-label">3,0 cm</span>
+            </div>
+          </div>
+        </div>
+        <div class="spec-card">
+          <div class="spec-title">Recursos profesionales</div>
+          <div class="spec-body">
+            <a href="#">Archivo HD</a><br>
+            <a href="#">Download for BIM</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="detail-fullwidth">
+    <img src="detalle-marmol.png" alt="Detalle del material">
+  </section>
+
+  <section class="detail-similar">
+    <div class="similar-title">Colores similares</div>
+    <div class="similar-cards">
+      <div class="similar-card">
+        <img src="similar-01.png" alt="Eter">
+        <div class="similar-card-title">Eter</div>
+        <div class="similar-card-subtitle">Dekton - Dk natural</div>
+      </div>
+      <div class="similar-card">
+        <img src="similar-02.png" alt="Somnia">
+        <div class="similar-card-title">Somnia</div>
+        <div class="similar-card-subtitle">Dekton - Onirika</div>
+      </div>
+      <div class="similar-card">
+        <img src="similar-03.png" alt="Bromo">
+        <div class="similar-card-title">Bromo</div>
+        <div class="similar-card-subtitle">Dekton - Dk natural</div>
+      </div>
+      <div class="similar-card">
+        <img src="similar-04.png" alt="Domoos">
+        <div class="similar-card-title">Domoos</div>
+        <div class="similar-card-subtitle">Dekton - Dk solid</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="detail-dual">
+    <img src="detalle-dual-01.png" alt="Cocina con encimera">
+    <img src="detalle-dual-02.png" alt="Comedor con mesa">
+  </section>
+
+  <script>
+    // Page fade-in
+    window.addEventListener('DOMContentLoaded', () => {
+      requestAnimationFrame(() => document.body.classList.add('loaded'));
+    });
+
+    // Header dark/light based on background
+    const header = document.querySelector('header');
+    const darkSections = document.querySelectorAll('.hero, .detail-fullwidth');
+
+    function updateHeaderColor() {
+      const headerBottom = header.offsetHeight;
+      let overDark = false;
+
+      darkSections.forEach(section => {
+        const rect = section.getBoundingClientRect();
+        if (rect.top < headerBottom && rect.bottom > 0) {
+          overDark = true;
+        }
+      });
+
+      header.classList.toggle('dark', !overDark);
+    }
+
+    window.addEventListener('scroll', updateHeaderColor);
+    updateHeaderColor();
+
+    // Hamburger menu
+    const hamburgerBtn = document.getElementById('hamburger');
+    let mobileMenuOverlay = null;
+
+    function createMobileMenu() {
+      if (mobileMenuOverlay) return;
+      mobileMenuOverlay = document.createElement('div');
+      mobileMenuOverlay.className = 'mobile-menu-overlay';
+      document.querySelectorAll('.header-nav a').forEach(link => {
+        const a = document.createElement('a');
+        a.href = link.href;
+        a.textContent = link.textContent;
+        mobileMenuOverlay.appendChild(a);
+      });
+      const proLink = document.querySelector('.header-right a');
+      if (proLink) {
+        const a = document.createElement('a');
+        a.href = proLink.href;
+        a.textContent = proLink.textContent;
+        mobileMenuOverlay.appendChild(a);
+      }
+      document.body.appendChild(mobileMenuOverlay);
+
+      mobileMenuOverlay.querySelectorAll('a[href]').forEach(link => {
+        link.addEventListener('click', e => {
+          const href = link.getAttribute('href');
+          if (href && !href.startsWith('#') && !href.startsWith('javascript')) {
+            e.preventDefault();
+            document.body.classList.add('leaving');
+            setTimeout(() => window.location.href = href, 400);
+          }
+        });
+      });
+    }
+
+    hamburgerBtn.addEventListener('click', () => {
+      createMobileMenu();
+      const isOpen = hamburgerBtn.classList.toggle('open');
+      mobileMenuOverlay.classList.toggle('open', isOpen);
+      document.body.style.overflow = isOpen ? 'hidden' : '';
+    });
+
+    // Page fade-out on navigation
+    document.querySelectorAll('a[href]').forEach(link => {
+      link.addEventListener('click', e => {
+        const href = link.getAttribute('href');
+        if (href && !href.startsWith('#') && !href.startsWith('javascript') && href !== '#') {
+          e.preventDefault();
+          document.body.classList.add('leaving');
+          setTimeout(() => window.location.href = href, 400);
+        }
+      });
+    });
+  </script>
+</body>
+</html>

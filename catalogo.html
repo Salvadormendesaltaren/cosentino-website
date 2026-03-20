@@ -965,18 +965,20 @@
         if (!isMobile()) grid.classList.remove('hover-active');
       });
 
-      // Mobile: tap toggles per-card material
+      // Click → navigate to detail page
       card.addEventListener('click', (e) => {
-        if (!isMobile()) return;
-        e.stopPropagation();
-        const matImg = thumb.querySelector('.mat-img');
-        if (!matImg) return;
-        const isShowing = matImg.style.opacity === '1';
-        // Reset all cards first
-        document.querySelectorAll('.card-thumb .mat-img').forEach(img => img.style.opacity = '');
-        if (!isShowing) {
-          matImg.style.opacity = '1';
+        if (isMobile()) {
+          // Mobile: first tap shows material, second tap navigates
+          const matImg = thumb.querySelector('.mat-img');
+          if (matImg && matImg.style.opacity !== '1') {
+            e.stopPropagation();
+            document.querySelectorAll('.card-thumb .mat-img').forEach(img => img.style.opacity = '');
+            matImg.style.opacity = '1';
+            return;
+          }
         }
+        document.body.classList.add('leaving');
+        setTimeout(() => window.location.href = 'detalle.html', 400);
       });
     });
 
