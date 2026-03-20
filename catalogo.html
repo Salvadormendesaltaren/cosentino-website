@@ -445,6 +445,172 @@
       pointer-events: none;
       z-index: 9;
     }
+
+    /* Hamburger button (hidden on desktop) */
+    .hamburger {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+      z-index: 60;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .hamburger span {
+      display: block;
+      width: 24px;
+      height: 1.5px;
+      background: #000;
+      transition: transform 0.3s;
+    }
+    .hamburger.open span {
+      background: #fff !important;
+    }
+    .hamburger.open span:first-child {
+      transform: translateY(3.75px) rotate(45deg);
+    }
+    .hamburger.open span:last-child {
+      transform: translateY(-3.75px) rotate(-45deg);
+    }
+
+    /* Mobile menu overlay */
+    .mobile-menu-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.92);
+      z-index: 55;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 32px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .mobile-menu-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .mobile-menu-overlay a {
+      font-family: 'Diagramm', sans-serif;
+      font-size: 24px;
+      color: #fff;
+      text-decoration: none;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+    }
+    .mobile-menu-overlay a:hover {
+      opacity: 1;
+    }
+
+    /* ---- MOBILE ---- */
+    @media (max-width: 768px) {
+      header {
+        padding: 20px 16px 0 16px;
+      }
+      .header-nav,
+      .header-right {
+        display: none;
+      }
+      .hamburger {
+        display: flex;
+      }
+
+      /* Page title */
+      .page-title {
+        font-size: 36px;
+        padding-top: 64px;
+        padding-left: 16px;
+      }
+
+      /* Catalog actions */
+      .catalog-actions {
+        margin: 16px 16px 0 16px;
+      }
+
+      /* Cards grid */
+      .cards-grid {
+        grid-template-columns: repeat(2, 1fr);
+        margin: 16px;
+        gap: 12px;
+        padding-bottom: 80px;
+      }
+      .card {
+        width: 100%;
+        opacity: 1;
+      }
+      .card:hover {
+        opacity: 1;
+      }
+
+      /* Bottom bar */
+      .bottom-bar {
+        padding: 0 16px 20px 16px;
+      }
+      .bottom-bar-left,
+      .bottom-bar-center {
+        position: static;
+        transform: none;
+      }
+      .bottom-bar {
+        justify-content: space-between;
+      }
+      .bottom-bar a,
+      .bottom-bar span {
+        font-size: 12px;
+      }
+      .bottom-bar-center {
+        gap: 16px;
+      }
+
+      /* Color selector expanded — floating pill */
+      .bottom-bar-mid.expanded .color-options {
+        position: fixed;
+        bottom: 56px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0,0,0,0.85);
+        padding: 12px 20px;
+        border-radius: 24px;
+        gap: 14px;
+        z-index: 30;
+      }
+      .bottom-bar-mid.expanded .color-options span {
+        color: #fff;
+        font-size: 13px;
+      }
+      .bottom-bar-mid.expanded .color-options .color-close::before,
+      .bottom-bar-mid.expanded .color-options .color-close::after {
+        background: #fff;
+      }
+
+      /* Maca overlay */
+      .maca-overlay {
+        left: 16px;
+        right: 16px;
+        transform: none;
+        width: auto;
+      }
+      .maca-chat {
+        max-width: 100%;
+        width: 100%;
+      }
+      .maca-bubble {
+        white-space: normal;
+        max-width: 300px;
+        text-align: center;
+      }
+
+      /* Shadows */
+      .top-shadow {
+        height: 80px;
+      }
+      .bottom-shadow {
+        height: 60px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -464,6 +630,9 @@
     <div class="header-right">
       <a href="#">Profesionales</a>
     </div>
+    <button class="hamburger" id="hamburger" aria-label="Menu">
+      <span></span><span></span>
+    </button>
   </header>
 
   <h1 class="page-title">Colores</h1>
@@ -781,12 +950,93 @@
       if (macaOpen) { closeMaca(); } else { openMaca(); }
     });
 
-    // Card material hover
+    // Card material hover (desktop) / tap (mobile)
     const grid = document.querySelector('.cards-grid');
-    const cards = document.querySelectorAll('.card-thumb');
-    cards.forEach(thumb => {
-      thumb.addEventListener('mouseenter', () => grid.classList.add('hover-active'));
-      thumb.addEventListener('mouseleave', () => grid.classList.remove('hover-active'));
+    const cards = document.querySelectorAll('.card');
+    const isMobile = () => window.innerWidth <= 768;
+
+    cards.forEach(card => {
+      const thumb = card.querySelector('.card-thumb');
+      // Desktop: hover shows all materials
+      thumb.addEventListener('mouseenter', () => {
+        if (!isMobile()) grid.classList.add('hover-active');
+      });
+      thumb.addEventListener('mouseleave', () => {
+        if (!isMobile()) grid.classList.remove('hover-active');
+      });
+
+      // Mobile: tap toggles per-card material
+      card.addEventListener('click', (e) => {
+        if (!isMobile()) return;
+        e.stopPropagation();
+        const matImg = thumb.querySelector('.mat-img');
+        if (!matImg) return;
+        const isShowing = matImg.style.opacity === '1';
+        // Reset all cards first
+        document.querySelectorAll('.card-thumb .mat-img').forEach(img => img.style.opacity = '');
+        if (!isShowing) {
+          matImg.style.opacity = '1';
+        }
+      });
+    });
+
+    // Mobile: tap outside cards to dismiss material
+    document.addEventListener('click', (e) => {
+      if (!isMobile()) return;
+      if (!e.target.closest('.card')) {
+        document.querySelectorAll('.card-thumb .mat-img').forEach(img => img.style.opacity = '');
+      }
+    });
+
+    // ---- MOBILE: Hamburger menu ----
+    const hamburgerBtn = document.getElementById('hamburger');
+    let mobileMenuOverlay = null;
+
+    function createMobileMenu() {
+      if (mobileMenuOverlay) return;
+      mobileMenuOverlay = document.createElement('div');
+      mobileMenuOverlay.className = 'mobile-menu-overlay';
+      const navLinks = document.querySelectorAll('.header-nav a');
+      navLinks.forEach(link => {
+        const a = document.createElement('a');
+        a.href = link.href;
+        a.textContent = link.textContent;
+        mobileMenuOverlay.appendChild(a);
+      });
+      const proLink = document.querySelector('.header-right a');
+      if (proLink) {
+        const a = document.createElement('a');
+        a.href = proLink.href;
+        a.textContent = proLink.textContent;
+        mobileMenuOverlay.appendChild(a);
+      }
+      document.body.appendChild(mobileMenuOverlay);
+
+      mobileMenuOverlay.querySelectorAll('a[href]').forEach(link => {
+        link.addEventListener('click', e => {
+          const href = link.getAttribute('href');
+          if (href && !href.startsWith('#') && !href.startsWith('javascript')) {
+            e.preventDefault();
+            document.body.classList.add('leaving');
+            setTimeout(() => window.location.href = href, 400);
+          }
+        });
+      });
+    }
+
+    hamburgerBtn.addEventListener('click', () => {
+      createMobileMenu();
+      const isOpen = hamburgerBtn.classList.toggle('open');
+      mobileMenuOverlay.classList.toggle('open', isOpen);
+      document.body.style.overflow = isOpen ? 'hidden' : '';
+    });
+
+    // ---- MOBILE: Touch-aware color selector ----
+    document.addEventListener('click', (e) => {
+      if (!isMobile()) return;
+      if (colorSelector.classList.contains('expanded') && !colorSelector.contains(e.target)) {
+        colorSelector.classList.remove('expanded');
+      }
     });
   </script>
 </body>

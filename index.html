@@ -672,6 +672,214 @@
     .page-intro-text.visible {
       opacity: 1;
     }
+
+    /* Hamburger button (hidden on desktop) */
+    .hamburger {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+      z-index: 60;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .hamburger span {
+      display: block;
+      width: 24px;
+      height: 1.5px;
+      background: #fff;
+      transition: background 0.3s, transform 0.3s;
+    }
+    header.dark .hamburger span {
+      background: #000;
+    }
+    .hamburger.open span {
+      background: #fff !important;
+    }
+    .hamburger.open span:first-child {
+      transform: translateY(3.75px) rotate(45deg);
+    }
+    .hamburger.open span:last-child {
+      transform: translateY(-3.75px) rotate(-45deg);
+    }
+
+    /* Mobile menu overlay */
+    .mobile-menu-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.92);
+      z-index: 55;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 32px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .mobile-menu-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .mobile-menu-overlay a {
+      font-family: 'Diagramm', sans-serif;
+      font-size: 24px;
+      color: #fff;
+      text-decoration: none;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+    }
+    .mobile-menu-overlay a:hover {
+      opacity: 1;
+    }
+
+    /* ---- MOBILE ---- */
+    @media (max-width: 768px) {
+      header {
+        padding: 20px 16px 0 16px;
+      }
+      .header-nav,
+      .header-right {
+        display: none;
+      }
+      .hamburger {
+        display: flex;
+      }
+
+      /* Hero */
+      .catalog-page .hero {
+        height: 100svh;
+      }
+
+      /* Intro overlay */
+      .intro-overlay {
+        height: 100svh;
+      }
+      .intro-text-line {
+        font-size: 12px;
+      }
+
+      /* Dual images */
+      .dual-images {
+        flex-direction: column;
+        height: auto;
+      }
+      .dual-images img {
+        width: 100%;
+        height: 50svh;
+      }
+
+      /* Sticky text */
+      .sticky-text {
+        top: 180px;
+        font-size: 14px;
+      }
+      .sticky-text--left {
+        margin-left: 16px;
+      }
+      .sticky-text--right {
+        margin-right: 16px;
+      }
+
+      /* Single images */
+      .single-image {
+        margin-top: 120px;
+        padding: 0 16px;
+      }
+      .single-image img {
+        max-width: 100%;
+      }
+      .single-image[style*="margin-top: 314px"] {
+        margin-top: 120px !important;
+      }
+
+      /* Dining */
+      .dining-section {
+        margin-top: 120px;
+      }
+      .dining-section img {
+        height: 70vh;
+      }
+
+      /* Bottom bar */
+      .bottom-bar {
+        padding: 0 16px 20px 16px;
+      }
+      .bottom-bar-left,
+      .bottom-bar-center {
+        position: static;
+        transform: none;
+      }
+      .bottom-bar {
+        justify-content: space-between;
+      }
+      .bottom-bar-material {
+        display: none;
+      }
+      .bottom-bar a,
+      .bottom-bar span {
+        font-size: 12px;
+      }
+      .bottom-bar-center {
+        gap: 16px;
+      }
+
+      /* Color selector expanded — floating pill */
+      .bottom-bar-mid.expanded .color-options {
+        position: fixed;
+        bottom: 60px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0,0,0,0.85);
+        padding: 12px 20px;
+        border-radius: 24px;
+        gap: 14px;
+        z-index: 30;
+      }
+      .bottom-bar-mid.expanded .color-options span {
+        color: #fff;
+        font-size: 13px;
+      }
+      .bottom-bar-mid.expanded .color-options .color-close::before,
+      .bottom-bar-mid.expanded .color-options .color-close::after {
+        background: #fff;
+      }
+
+      /* Maca overlay */
+      .maca-overlay {
+        left: 16px;
+        right: 16px;
+        transform: none;
+        width: auto;
+      }
+      .maca-chat {
+        max-width: 100%;
+        width: 100%;
+      }
+      .maca-input {
+        min-width: 0;
+        width: 100%;
+      }
+      .maca-bubble {
+        white-space: normal;
+        max-width: 300px;
+        text-align: center;
+      }
+
+      /* Bottom shadow */
+      .bottom-shadow {
+        height: 60px;
+      }
+
+      /* Page intro text */
+      .page-intro-text {
+        flex-direction: column;
+        text-align: center;
+        gap: 4px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -703,6 +911,9 @@
     <div class="header-right">
       <a href="#">Profesionales</a>
     </div>
+    <button class="hamburger" id="hamburger" aria-label="Menu">
+      <span></span><span></span>
+    </button>
   </header>
   <div class="bottom-shadow"></div>
   <div class="bottom-bar">
@@ -1222,6 +1433,87 @@
         openMaca();
       }
     });
+
+    // ---- MOBILE: Hamburger menu ----
+    const hamburgerBtn = document.getElementById('hamburger');
+    let mobileMenuOverlay = null;
+
+    function createMobileMenu() {
+      if (mobileMenuOverlay) return;
+      mobileMenuOverlay = document.createElement('div');
+      mobileMenuOverlay.className = 'mobile-menu-overlay';
+      const navLinks = document.querySelectorAll('.header-nav a');
+      navLinks.forEach(link => {
+        const a = document.createElement('a');
+        a.href = link.href;
+        a.textContent = link.textContent;
+        mobileMenuOverlay.appendChild(a);
+      });
+      // Add "Profesionales" link
+      const proLink = document.querySelector('.header-right a');
+      if (proLink) {
+        const a = document.createElement('a');
+        a.href = proLink.href;
+        a.textContent = proLink.textContent;
+        mobileMenuOverlay.appendChild(a);
+      }
+      document.body.appendChild(mobileMenuOverlay);
+
+      // Fade-out on nav inside mobile menu
+      mobileMenuOverlay.querySelectorAll('a[href]').forEach(link => {
+        link.addEventListener('click', e => {
+          const href = link.getAttribute('href');
+          if (href && !href.startsWith('#') && !href.startsWith('javascript') && href !== '#') {
+            e.preventDefault();
+            document.body.style.transition = 'opacity 0.4s ease';
+            document.body.style.opacity = '0';
+            setTimeout(() => window.location.href = href, 400);
+          }
+        });
+      });
+    }
+
+    hamburgerBtn.addEventListener('click', () => {
+      createMobileMenu();
+      const isOpen = hamburgerBtn.classList.toggle('open');
+      mobileMenuOverlay.classList.toggle('open', isOpen);
+      // Prevent scroll when menu is open
+      document.body.style.overflow = isOpen ? 'hidden' : '';
+    });
+
+    // ---- MOBILE: Touch-aware color selector ----
+    document.addEventListener('click', (e) => {
+      if (window.innerWidth > 768) return;
+      if (colorSelector.classList.contains('expanded') && !colorSelector.contains(e.target)) {
+        colorSelector.classList.remove('expanded');
+      }
+    });
+
+    // ---- MOBILE: Shorter snap duration ----
+    const isMobile = () => window.innerWidth <= 768;
+    const originalSmoothSnapTo = smoothSnapTo;
+    smoothSnapTo = function(target) {
+      if (isSnapping) return;
+      isSnapping = true;
+      const start = window.scrollY;
+      const distance = target - start;
+      const duration = isMobile() ? 500 : 800;
+      let startTime;
+
+      function step(timestamp) {
+        if (!startTime) startTime = timestamp;
+        const elapsed = timestamp - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = easeInOutCubic(progress);
+        window.scrollTo(0, start + distance * eased);
+        if (progress < 1) {
+          requestAnimationFrame(step);
+        } else {
+          isSnapping = false;
+        }
+      }
+      requestAnimationFrame(step);
+    };
 
     // Page fade-out on navigation
     document.querySelectorAll('a[href]').forEach(link => {
