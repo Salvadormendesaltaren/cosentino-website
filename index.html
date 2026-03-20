@@ -403,6 +403,15 @@
       opacity: 1;
     }
 
+    .bottom-bar-mid .color-options span.color-disabled {
+      opacity: 0.25;
+      cursor: default;
+    }
+
+    .bottom-bar-mid .color-options span.color-disabled:hover {
+      opacity: 0.25;
+    }
+
     .color-close {
       display: inline-block;
       width: 14px;
@@ -923,24 +932,12 @@
 
       /* Page intro text */
       .page-intro-text {
-        flex-direction: column;
-        text-align: center;
-        gap: 4px;
-        width: 80%;
-      }
-
-      .intro-text {
-        text-align: center;
-        gap: 0;
-      }
-
-      .intro-text-line {
-        font-size: 11px;
         white-space: nowrap;
       }
 
+      .intro-text-line,
       .page-intro-text .intro-text-line {
-        font-size: 11px;
+        font-size: 10px;
         white-space: nowrap;
       }
 
@@ -995,11 +992,11 @@
         <span class="color-toggle">Más colores</span>
         <div class="color-options">
           <span class="color-close"></span>
-          <span>Cream</span>
-          <span>Gray</span>
-          <span>Black</span>
-          <span>Green</span>
-          <span>White</span>
+          <span data-page="0">Cream</span>
+          <span data-page="1">Gray</span>
+          <span class="color-disabled">Black</span>
+          <span class="color-disabled">Green</span>
+          <span data-page="2">White</span>
         </div>
       </div>
       <a href="#" class="bottom-bar-maca" id="macaLink">MACA ✽</a>
@@ -1315,6 +1312,19 @@
       colorSelector.classList.remove('expanded');
     });
 
+    // Color option clicks → scroll to corresponding page
+    colorSelector.querySelectorAll('.color-options span[data-page]').forEach(opt => {
+      opt.addEventListener('click', () => {
+        const pageIndex = parseInt(opt.dataset.page);
+        const targetPage = pages[pageIndex];
+        if (targetPage) {
+          const heroTop = absTop(targetPage.querySelector('.hero'));
+          smoothSnapTo(heroTop);
+          colorSelector.classList.remove('expanded');
+        }
+      });
+    });
+
     colorSelector.addEventListener('mouseleave', () => {
       if (colorSelector.classList.contains('expanded')) {
         collapseTimer = setTimeout(() => {
@@ -1463,6 +1473,7 @@
       if (macaCancelled) return;
       macaBg.style.backgroundImage = "url('img-maca-result.png')";
       macaBg.classList.add('visible');
+      introOverlay.style.opacity = '0';
       macaChat.innerHTML = '';
       await wait(1200);
 
@@ -1499,6 +1510,7 @@
       macaOpen = false;
       macaLink.textContent = 'MACA ✽';
       macaBg.classList.remove('visible');
+      introOverlay.style.opacity = '';
       macaOverlay.classList.remove('active');
       macaChat.innerHTML = '';
     }

@@ -149,17 +149,28 @@
     }
 
     .detail-back {
+      position: fixed;
+      top: 56px;
+      left: 24px;
       font-family: 'Diagramm', sans-serif;
       font-size: 14px;
       font-weight: 400;
       color: rgba(255,255,255,0.6);
       text-decoration: none;
-      margin-bottom: 18px;
-      transition: color 0.2s;
+      z-index: 10;
+      transition: color 0.3s;
     }
 
     .detail-back:hover {
       color: rgba(255,255,255,1);
+    }
+
+    .detail-back.dark {
+      color: rgba(0,0,0,0.6);
+    }
+
+    .detail-back.dark:hover {
+      color: rgba(0,0,0,1);
     }
 
     /* Text block — bottom left */
@@ -517,6 +528,11 @@
         display: flex;
       }
 
+      .detail-back {
+        top: 50px;
+        left: 16px;
+      }
+
       .hero {
         height: 100svh;
       }
@@ -623,10 +639,11 @@
     </button>
   </header>
 
+  <a href="javascript:history.back()" class="detail-back">Volver</a>
+
   <section class="hero" id="hero" style="background-image: url('detalle-hero.png');">
     <div class="hero-content">
       <div class="detail-text">
-        <a href="javascript:history.back()" class="detail-back">Volver</a>
         <h1 class="detail-title">Cinder Craze</h1>
         <p class="detail-subtitle">Silestone — Loft</p>
       </div>
@@ -743,6 +760,7 @@
       });
 
       header.classList.toggle('dark', !overDark);
+      document.querySelector('.detail-back').classList.toggle('dark', !overDark);
     }
 
     window.addEventListener('scroll', updateHeaderColor);
